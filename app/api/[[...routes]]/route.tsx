@@ -3,12 +3,51 @@
 import { createConfig, getEnsAddress, http } from '@wagmi/core';
 import { mainnet } from '@wagmi/core/chains';
 import { Button, Frog, TextInput } from 'frog';
-import { devtools } from 'frog/dev';
 import { handle } from 'frog/next';
-import { serveStatic } from 'frog/serve-static';
-import { parseUnits } from 'viem';
+import { erc20Abi, parseUnits } from 'viem';
+interface Token {
+  address: `0x${string}`;
+  decimals: number;
+}
 
-const apiKey = process.env.NEYNAR_API_KEY as string
+interface Chain {
+  [token: string]: Token;
+}
+
+interface Tokens {
+  [chain: string]: Chain;
+}
+
+const tokens: Tokens = {
+  optimism: {
+    USDC: {
+      address: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
+      decimals: 6,
+    },
+    DAI: {
+      address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+      decimals: 18,
+    },
+    USDT: {
+      address: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
+      decimals: 6,
+    },
+  },
+  base: {
+    USDC: {
+      address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+      decimals: 6,
+    },
+    DAI: {
+      address: '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb',
+      decimals: 18,
+    },
+    DEGEN: {
+      address: '0x4ed4e862860bed51a9570b96d89af5e1b0efefed',
+      decimals: 18,
+    },
+  },
+}
 
 const wagmiConfig = createConfig({
   chains: [mainnet],
@@ -20,11 +59,7 @@ const wagmiConfig = createConfig({
 const app = new Frog({
   assetsPath: '/',
   basePath: '/api',
-  // hub: neynar({ apiKey })
 })
-
-// Uncomment to use Edge Runtime
-// export const runtime = 'edge'
 
 const image = (ens: string, amount: string, token: string, chain: string) => (
   <div
@@ -71,26 +106,52 @@ app.frame('/pay/:ens', async (c) => {
     image: image(ens as string, "", "", chain),
     intents: [
       <TextInput placeholder='Amount' />,
-      <Button.Transaction target={`/send/${ens}/${address}/ETH`}>ETH</Button.Transaction>,
-      <Button.Transaction target={`/send/${ens}/${address}/USDC`}>USDC</Button.Transaction>,
-      <Button.Transaction target={`/send/${ens}/${address}/DAI`}>DAI</Button.Transaction>,
-      <Button.Transaction target={`/send/${ens}/${address}/${lastToken}`}>{lastToken}</Button.Transaction>,
+      <Button.Transaction 
+        target={`/send/${ens}/${address}/ETH/${isFkey}`}
+      >
+        ETH
+      </Button.Transaction>,
+      <Button.Transaction 
+        target={`/send/$${address}/USDC/${isFkey}`}
+      >
+        USDC
+      </Button.Transaction>,
+      <Button.Transaction 
+        target={`/send/${address}/DAI/${isFkey}`}
+      > 
+        DAI
+      </Button.Transaction>,
+      <Button.Transaction 
+        target={`/send/${address}/${lastToken}/${isFkey}`}
+      >
+        {lastToken}
+      </Button.Transaction>,
     ],
   })
 })
 
-app.transaction('/send/:address', async c => {
+app.transaction('/send/:address/:token/:isFkey', async c => {
   const { inputText } = c
-  const address = c.req.param('address')
-  return c.send({
-    chainId: 'eip155:8453',
-    to: address as `0x${string}`,
-    value: parseUnits(inputText as string, 18),
-  });
+  const { address, token, isFkey } = c.req.param()
+  if (token === '0x0000000000000000000000000000000000000000') {
+    return c.send({
+      chainId: isFkey ? 'eip155:10' : 'eip155:8453',
+      to: address as `0x${string}`,
+      value: parseUnits(inputText as string, 18),
+    });
+  } else {
+    return c.contract({
+      abi: erc20Abi,
+      chainId: isFkey ? 'eip155:10' : 'eip155:8453',
+      functionName: 'transfer',
+      args: [
+        address as `0x${string}`, 
+        parseUnits(inputText as string, tokens[isFkey ? 'optimism' : 'base'][token].decimals)
+      ],
+      to: tokens[isFkey ? 'optimism' : 'base'][token].address,
+    });
+  }
 });
-
-
-devtools(app, { serveStatic })
 
 export const GET = handle(app)
 export const POST = handle(app)
