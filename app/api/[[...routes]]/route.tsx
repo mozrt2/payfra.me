@@ -4,7 +4,6 @@ import { createConfig, getEnsAddress, http } from '@wagmi/core';
 import { mainnet } from '@wagmi/core/chains';
 import { Button, Frog } from 'frog';
 import { devtools } from 'frog/dev';
-import { neynar } from 'frog/hubs';
 import { handle } from 'frog/next';
 import { serveStatic } from 'frog/serve-static';
 
@@ -20,7 +19,7 @@ const wagmiConfig = createConfig({
 const app = new Frog({
   assetsPath: '/',
   basePath: '/api',
-  hub: neynar({ apiKey })
+  // hub: neynar({ apiKey })
 })
 
 // Uncomment to use Edge Runtime
