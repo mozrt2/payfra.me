@@ -63,18 +63,17 @@ app.frame('/pay/:ens', async (c) => {
         </div>
       </div>
     ),
-    action: `/send/${ens}`,
     intents: [
-      <Button.Transaction target={`/send/${ens}`}>Pay 💸</Button.Transaction>,
+      <Button.Transaction target={`/send/${address}`}>Pay 💸</Button.Transaction>,
     ],
   })
 })
 
-app.transaction('/send/:ens', async c => {
-  const { buttonValue } = c;
+app.transaction('/send/:address', async c => {
+  const address = c.req.param('address')
   return c.send({
     chainId: 'eip155:10',
-    to: buttonValue as `0x${string}`,
+    to: address as `0x${string}`,
   });
 });
 
