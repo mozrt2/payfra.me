@@ -1,11 +1,20 @@
 /** @jsxImportSource frog/jsx */
 
-import { Button, Frog, TextInput } from 'frog'
-import { devtools } from 'frog/dev'
-import { handle } from 'frog/next'
-import { serveStatic } from 'frog/serve-static'
+import { createConfig, getEnsAddress, http } from '@wagmi/core';
+import { mainnet } from '@wagmi/core/chains';
+import { Button, Frog, TextInput } from 'frog';
+import { devtools } from 'frog/dev';
+import { handle } from 'frog/next';
+import { serveStatic } from 'frog/serve-static';
 
 const apiKey = process.env.NEYNAR_API_KEY as string
+
+const wagmiConfig = createConfig({
+  chains: [mainnet],
+  transports: {
+    [mainnet.id]: http(),
+  }
+})
 
 const app = new Frog({
   assetsPath: '/',
@@ -15,8 +24,13 @@ const app = new Frog({
 
 // Uncomment to use Edge Runtime
 // export const runtime = 'edge'
+const test = "/"
 
-app.frame('/', (c) => {
+app.frame(`${test}`, async (c) => {
+  const address = await getEnsAddress(wagmiConfig, { 
+    name: 'mozrt.eth'
+  })
+  console.log(address)
   const { buttonValue, inputText, status } = c
   const fruit = inputText || buttonValue
   return c.res({
@@ -58,7 +72,7 @@ app.frame('/', (c) => {
     ),
     intents: [
       <TextInput placeholder="Enter custom fruit..." />,
-      <Button value="apples">Apples</Button>,
+      <Button value={address as string}>{address as string}</Button>,
       <Button value="oranges">Oranges</Button>,
       <Button value="bananas">Bananas</Button>,
       status === 'response' && <Button.Reset>Reset</Button.Reset>,
