@@ -65,7 +65,7 @@ app.frame('/pay/:ens', async (c) => {
     ),
     action: `/send/${ens}`,
     intents: [
-      <Button.Transaction target={`send/${ens}`}>Pay 💸</Button.Transaction>,
+      <Button.Transaction target={`/send/${ens}`}>Pay 💸</Button.Transaction>,
     ],
   })
 })
