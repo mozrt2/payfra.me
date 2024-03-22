@@ -61,7 +61,7 @@ const app = new Frog({
   basePath: '/api',
 })
 
-const image = (ens: string, amount: string, token: string, chain: string) => (
+const image = (ens: string, chain: string) => (
   <div
     style={{
       alignItems: 'center',
@@ -88,7 +88,7 @@ const image = (ens: string, amount: string, token: string, chain: string) => (
         whiteSpace: 'pre-wrap',
       }}
     >
-      {`Send${amount} ${token}to ${ens} on ${chain}`}
+      {`Pay ${ens} on ${chain}`}
     </div>
   </div>
 )
@@ -103,7 +103,7 @@ app.frame('/pay/:ens', async (c) => {
     name: ens as string,
   })
   return c.res({
-    image: image(ens as string, "", "", chain),
+    image: image(ens as string, chain),
     intents: [
       <TextInput placeholder='Amount' />,
       <Button.Transaction 
