@@ -133,6 +133,7 @@ app.frame('/pay/:ens', async (c) => {
 app.transaction('/send/:address/:token/:isFkey', async c => {
   const { inputText } = c
   const { address, token, isFkey } = c.req.param()
+  console.log({ address, token, isFkey, inputText })
   if (token === '0x0000000000000000000000000000000000000000') {
     return c.send({
       chainId: isFkey ? 'eip155:10' : 'eip155:8453',
