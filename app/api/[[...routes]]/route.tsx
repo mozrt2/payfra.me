@@ -4,6 +4,7 @@ import { createConfig, getEnsAddress, http } from '@wagmi/core';
 import { mainnet } from '@wagmi/core/chains';
 import { Button, Frog } from 'frog';
 import { devtools } from 'frog/dev';
+import { neynar } from 'frog/hubs';
 import { handle } from 'frog/next';
 import { serveStatic } from 'frog/serve-static';
 
@@ -19,21 +20,17 @@ const wagmiConfig = createConfig({
 const app = new Frog({
   assetsPath: '/',
   basePath: '/api',
-  // hub: neynar({ apiKey })
+  hub: neynar({ apiKey })
 })
 
 // Uncomment to use Edge Runtime
 // export const runtime = 'edge'
-const test = "/"
 
-app.frame('/:ens', async (c) => {
-  // const path = c.initialPath
-  // console.log(path)
+app.frame('/pay/:ens', async (c) => {
   const ens = c.req.param('ens')
   const address = await getEnsAddress(wagmiConfig, { 
     name: ens,
   })
-
   return c.res({
     image: (
       <div
@@ -66,11 +63,20 @@ app.frame('/:ens', async (c) => {
         </div>
       </div>
     ),
+    action: `/send/${ens}`,
     intents: [
-      <Button value="send">Pay 💸</Button>,
+      <Button value={address as string}>Pay 💸</Button>,
     ],
   })
 })
+
+app.transaction('/send/:ens', async c => {
+  const { buttonValue } = c;
+  return c.send({
+    chainId: 'eip155:10',
+    to: buttonValue as `0x${string}`,
+  });
+});
 
 devtools(app, { serveStatic })
 
