@@ -2,7 +2,7 @@
 
 import { createConfig, getEnsAddress, http } from '@wagmi/core';
 import { mainnet } from '@wagmi/core/chains';
-import { Button, Frog, TextInput } from 'frog';
+import { Button, Frog } from 'frog';
 import { devtools } from 'frog/dev';
 import { handle } from 'frog/next';
 import { serveStatic } from 'frog/serve-static';
@@ -26,22 +26,20 @@ const app = new Frog({
 // export const runtime = 'edge'
 const test = "/"
 
-app.frame(`${test}`, async (c) => {
+app.frame('/:ens', async (c) => {
+  // const path = c.initialPath
+  // console.log(path)
+  const ens = c.req.param('ens')
   const address = await getEnsAddress(wagmiConfig, { 
-    name: 'mozrt.eth'
+    name: ens,
   })
-  console.log(address)
-  const { buttonValue, inputText, status } = c
-  const fruit = inputText || buttonValue
+
   return c.res({
     image: (
       <div
         style={{
           alignItems: 'center',
-          background:
-            status === 'response'
-              ? 'linear-gradient(to right, #432889, #17101F)'
-              : 'black',
+          background:'linear-gradient(to bottom right, #19719A, #002E00)',
           backgroundSize: '100% 100%',
           display: 'flex',
           flexDirection: 'column',
@@ -64,18 +62,12 @@ app.frame(`${test}`, async (c) => {
             whiteSpace: 'pre-wrap',
           }}
         >
-          {status === 'response'
-            ? `Nice choice.${fruit ? ` ${fruit.toUpperCase()}!!` : ''}`
-            : 'Welcome!'}
+          {`Pay ${ens}`}
         </div>
       </div>
     ),
     intents: [
-      <TextInput placeholder="Enter custom fruit..." />,
-      <Button value={address as string}>{address as string}</Button>,
-      <Button value="oranges">Oranges</Button>,
-      <Button value="bananas">Bananas</Button>,
-      status === 'response' && <Button.Reset>Reset</Button.Reset>,
+      <Button value="send">Pay 💸</Button>,
     ],
   })
 })
