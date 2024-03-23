@@ -74,6 +74,7 @@ export async function GET(req: Request, res: Response) {
       keccak256(rawResponse.address),
     ],
   ))
+  console.log('hashedResponse:',hashedResponse);
   const hashedResponseBytes = toBytes(hashedResponse);
   console.log('hashedResponseBytes:',hashedResponseBytes);
   
