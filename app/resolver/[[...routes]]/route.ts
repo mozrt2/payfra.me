@@ -77,10 +77,13 @@ export async function GET(req: Request, res: Response) {
         record = userDataJson.result.user.displayName;
         break;
       case 'description':
-        record = userDataJson.result.user.profile.description;
+        record = userDataJson.result.user.profile.bio.text;
         break;
       case 'avatar':
         record = userDataJson.result.user.pfp.url;
+        break;
+      case 'url':
+        record = userDataJson.result.user.profile.url;
         break;
       default:
         return Response.json({ error: 'Record type not supported' }, { status: 400 });
