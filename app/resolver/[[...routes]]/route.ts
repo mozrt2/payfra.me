@@ -1,7 +1,7 @@
 import { decodeEnsDomain } from "@/utils/decodeEnsDomain";
 import { resolverAbi } from "@/utils/resolverAbi";
 import * as secp from '@noble/secp256k1';
-import { decodeAbiParameters, decodeFunctionData, encodeAbiParameters, encodePacked, fromBytes, isHex, keccak256, recoverAddress, toBytes } from "viem";
+import { decodeAbiParameters, decodeFunctionData, encodeAbiParameters, encodeFunctionResult, encodePacked, fromBytes, isHex, keccak256, toBytes } from "viem";
 
 export async function GET(req: Request, res: Response) {
   
@@ -61,8 +61,14 @@ export async function GET(req: Request, res: Response) {
 
   const address = userDataJson.result.user.verifiedAddresses.eth_addresses[0];
 
+  const result = encodeFunctionResult({
+    abi: resolverAbi.filter(i => i.name === 'addr' && i.inputs.length === 1),
+    functionName,
+    result: address,
+  });
+
   const rawResponse = {
-    address,
+    result,
     validUntil: Math.floor(Date.now() / 1000) + 10000,
   }
 
@@ -73,7 +79,7 @@ export async function GET(req: Request, res: Response) {
       resolver,
       BigInt(rawResponse.validUntil),
       keccak256(data),
-      keccak256(rawResponse.address),
+      keccak256(rawResponse.result),
     ],
   ))
   const hashedResponseBytes = toBytes(hashedResponse);
@@ -89,18 +95,13 @@ export async function GET(req: Request, res: Response) {
   const completeSignature = new Uint8Array([...Array.from(signatureBytes[0]), recoveryId]);
   const signature = fromBytes(completeSignature, 'hex');
 
-  const verifySignerAddress = await recoverAddress({
-    hash: hashedResponseBytes,
-    signature,
-  });
-
   const response = encodeAbiParameters([
       { type: 'bytes' },
       { type: 'uint64' },
       { type: 'bytes' },
     ],
     [
-      rawResponse.address, 
+      rawResponse.result, 
       BigInt(rawResponse.validUntil), 
       signature
   ])
