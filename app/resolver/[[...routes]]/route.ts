@@ -48,8 +48,7 @@ export async function GET(req: Request, res: Response) {
   // Fetch the address corresponding to the username
   const options = {
     method: 'GET',
-    headers: {accept: 'application/json', api_key: process.env.NEYNAR_API_KEY as string},
-    origin: 'https://payfra.me'
+    headers: {accept: 'application/json', api_key: process.env.NEYNAR_API_KEY as string, origin: 'https://payfra.me'},
   };
 
   const userData = await fetch(`https://api.neynar.com/v1/farcaster/user-by-username?username=${username}`, options)
