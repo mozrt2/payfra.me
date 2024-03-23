@@ -1,4 +1,6 @@
-import { isHex } from "viem";
+import { decodeEnsDomain } from "@/utils/decodeEnsDomain";
+import { resolverAbi } from "@/utils/resolverAbi";
+import { decodeAbiParameters, decodeFunctionData, isHex } from "viem";
 
 export async function GET(req: Request) {
 
@@ -14,12 +16,34 @@ export async function GET(req: Request) {
     return Response.json({ error: 'Invalid data' });
   }
 
+  const [encodedEnsDomain, transactionData] = decodeAbiParameters([
+    { name: 'bytes', type: 'bytes' },
+    { name: 'bytes2', type: 'bytes' },
+  ], `0x${data.slice(10)}`);
+
+  const decodedEnsDomain = decodeEnsDomain(encodedEnsDomain);
+
+  const username = decodedEnsDomain.match(/^(.*?)\.fname\.eth$/);
+  if (username === null) {
+    return Response.json({ error: 'Invalid ENS domain' });
+  }
+
+  const { functionName, args } = decodeFunctionData({
+    abi: resolverAbi,
+    data: transactionData,
+  })  
+
+  if (functionName !== 'addr' && args && args.length !== 1) {
+    return Response.json({ error: 'Unsupported function' });
+  }
+
+  // Fetch the address corresponding to the username
   const options = {
     method: 'GET',
     headers: {accept: 'application/json', api_key: 'NEYNAR_API_DOCS'}
   };
 
-  const response = await fetch('https://api.neynar.com/v1/farcaster/user-by-username?username=moritz&viewerFid=3', options)
+  const response = await fetch(`https://api.neynar.com/v1/farcaster/user-by-username?username=${username}`, options)
 
   if (!response.ok) {
     console.log(response)
