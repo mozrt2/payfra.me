@@ -74,8 +74,8 @@ export async function GET(req: Request, res: Response) {
       keccak256(rawResponse.address),
     ],
   ))
-
   const hashedResponseBytes = toBytes(hashedResponse);
+  console.log('hashedResponseBytes:',hashedResponseBytes);
   
   const account = privateKeyToAccount(process.env.SIGNER_PRIVATE_KEY as `0x${string}`);
   const client = createWalletClient({
