@@ -65,7 +65,7 @@ const image = (ens: string, chain: string) => (
   <div
     style={{
       alignItems: 'center',
-      background:'linear-gradient(to bottom right, #19719A, #002E00)',
+      background:'linear-gradient(to bottom right, #0F445C, #002E00)',
       backgroundSize: '100% 100%',
       display: 'flex',
       flexDirection: 'column',
