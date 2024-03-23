@@ -40,7 +40,7 @@ export async function GET(req: Request, res: Response) {
   })  
 
   if (functionName !== 'addr' && args && args.length !== 1) {
-    return Response.json({ error: 'Unsupported function' }, { status: 400 });
+    return Response.json({ error: `Unsupported function: ${functionName}` }, { status: 400 });
   }
 
   // Fetch the address corresponding to the username
