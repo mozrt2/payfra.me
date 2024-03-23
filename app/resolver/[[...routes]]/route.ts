@@ -97,7 +97,7 @@ export async function GET(req: Request, res: Response) {
   console.log('validUntil:',rawResponse.validUntil)
 
   const verifySignerAddress = await recoverAddress({
-    hash: hashedResponse,
+    hash: hashedResponseBytes,
     signature,
   });
 
