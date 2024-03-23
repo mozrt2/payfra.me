@@ -1,5 +1,6 @@
 import { decodeEnsDomain } from "@/utils/decodeEnsDomain";
 import { resolverAbi } from "@/utils/resolverAbi";
+import { NeynarAPIClient } from "@neynar/nodejs-sdk";
 import * as secp from '@noble/secp256k1';
 import { decodeAbiParameters, decodeFunctionData, encodeAbiParameters, encodeFunctionResult, encodePacked, fromBytes, isHex, keccak256, toBytes } from "viem";
 
@@ -46,21 +47,24 @@ export async function GET(req: Request, res: Response) {
   }
 
   // Fetch the address corresponding to the username
-  const options = {
-    method: 'GET',
-    headers: {accept: 'application/json', api_key: process.env.NEYNAR_API_KEY as string, origin: 'https://payfra.me'},
-  };
+  const client = new NeynarAPIClient(process.env.NEYNAR_API_KEY as string)
+  const userData = await client.lookupUserByUsername(username)
+  // const options = {
+  //   method: 'GET',
+  //   headers: {accept: 'application/json', api_key: process.env.NEYNAR_API_KEY as string, origin: 'https://payfra.me'},
+  // };
 
-  const userData = await fetch(`https://api.neynar.com/v1/farcaster/user-by-username?username=${username}`, options)
+  // const userData = await fetch(`https://api.neynar.com/v1/farcaster/user-by-username?username=${username}`, options)
 
-  if (!userData.ok) {
-    console.error('Failed to fetch user:', username, userData.status, userData.statusText, userData.body, userData);
-    return Response.json({ error: 'Failed to fetch user' }, { status: 400 });
-  }
+  console.log(userData);
+  // if (!userData.ok) {
+  //   console.error('Failed to fetch user:', username, userData.status, userData.statusText, userData.body, userData);
+  //   return Response.json({ error: 'Failed to fetch user' }, { status: 400 });
+  // }
   
-  const userDataJson = await userData.json();
+  // const userDataJson = await userData.json();
 
-  const address = userDataJson.result.user.verifiedAddresses.eth_addresses[0];
+  const address = userData.result.user.custodyAddress;
 
   const result = encodeFunctionResult({
     abi: resolverAbi.filter(i => i.name === 'addr' && i.inputs.length === 1),

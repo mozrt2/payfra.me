@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@neynar/nodejs-sdk": "^1.13.1",
     "@noble/secp256k1": "1.5.3",
     "@wagmi/core": "2.6.9",
     "frog": "latest",
