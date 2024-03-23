@@ -1,6 +1,7 @@
 import { decodeEnsDomain } from "@/utils/decodeEnsDomain";
 import { resolverAbi } from "@/utils/resolverAbi";
-import { decodeAbiParameters, decodeFunctionData, isHex } from "viem";
+import { createWalletClient, decodeAbiParameters, decodeFunctionData, encodeAbiParameters, encodePacked, http, isHex, keccak256, toBytes } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
 
 export async function GET(req: Request) {
 
@@ -43,14 +44,61 @@ export async function GET(req: Request) {
     headers: {accept: 'application/json', api_key: 'NEYNAR_API_DOCS'}
   };
 
-  const response = await fetch(`https://api.neynar.com/v1/farcaster/user-by-username?username=${username}`, options)
+  const userData = await fetch(`https://api.neynar.com/v1/farcaster/user-by-username?username=${username}`, options)
 
-  if (!response.ok) {
-    console.log(response)
-    throw new Error(`HTTP error! status: ${response.status}`);
+  if (!userData.ok) {
+    return Response.json({ error: 'Failed to fetch user' });
   }
 
-  const data2 = await response.json();
+  const userDataJson = await userData.json();
+  const address = userDataJson.result.user.verifiedAddresses.eth_addresses[0];
 
-  return Response.json({ address: data2.result.user.verifiedAddresses.eth_addresses[0] });
+  const rawResponse = {
+    address,
+    validUntil: Math.floor(Date.now() / 1000) + 100,
+  }
+
+  const hashedResponse = keccak256(encodePacked(
+    ['bytes', 'address', 'uint64', 'bytes32', 'bytes32'],
+    [
+      '0x1900',
+      resolver,
+      BigInt(rawResponse.validUntil),
+      keccak256(data),
+      keccak256(rawResponse.address),
+    ],
+  ))
+
+  const hashedResponseBytes = toBytes(hashedResponse);
+
+  const account = privateKeyToAccount(process.env.SIGNER_PRIVATE_KEY as `0x${string}`);
+  const client = createWalletClient({
+    account,
+    transport: http(),
+  });
+  const signature = await client.signMessage({
+    message: {
+      raw: hashedResponseBytes,
+    }
+  });
+
+  const response = encodeAbiParameters([
+      { type: 'bytes' },
+      { type: 'uint64' },
+      { type: 'bytes' },
+    ],
+    [
+      rawResponse.address, 
+      BigInt(rawResponse.validUntil), 
+      signature
+  ])
+
+  return Response.json({
+    data: response,
+  }, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
 }
