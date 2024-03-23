@@ -1,6 +1,6 @@
 import { decodeEnsDomain } from "@/utils/decodeEnsDomain";
 import { resolverAbi } from "@/utils/resolverAbi";
-import { createWalletClient, decodeAbiParameters, decodeFunctionData, encodeAbiParameters, encodePacked, http, isHex, keccak256, recoverPublicKey, toBytes } from "viem";
+import { createWalletClient, decodeAbiParameters, decodeFunctionData, encodeAbiParameters, encodePacked, http, isHex, keccak256, recoverAddress, toBytes } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
 export async function GET(req: Request, res: Response) {
@@ -94,7 +94,7 @@ export async function GET(req: Request, res: Response) {
   console.log('signature:',signature)
   console.log('validUntil:',rawResponse.validUntil)
 
-  const verifySignerAddress = await recoverPublicKey({
+  const verifySignerAddress = await recoverAddress({
     hash: hashedResponse,
     signature,
   });
