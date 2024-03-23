@@ -95,7 +95,7 @@ export async function GET(req: Request, res: Response) {
   const account = privateKeyToAccount(process.env.SIGNER_PRIVATE_KEY as `0x${string}`);
   const client = createWalletClient({
     account,
-    transport: http(),
+    transport: http(process.env.TRANSPORT_URL as string),
   });
   const signature = await client.signMessage({
     message: {
