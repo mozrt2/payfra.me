@@ -3,18 +3,18 @@ import { resolverAbi } from "@/utils/resolverAbi";
 import { createWalletClient, decodeAbiParameters, decodeFunctionData, encodeAbiParameters, encodePacked, http, isHex, keccak256, toBytes } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
-export async function GET(req: Request) {
+export async function GET(req: Request, res: Response) {
 
   const path = req.url.split('/');
 
   const resolver = path[2];
   if (resolver !== '0x0eB8b476B2d346537f302E99419b215d191A7EFa') {
-    return Response.json({ error: 'Invalid resolver' });  
+    return Response.json({ error: 'Invalid resolver' }, { status: 400 });  
   }
 
   const data = path[3].replace('.json', '');
   if (isHex(data) === false) {
-    return Response.json({ error: 'Invalid data' });
+    return Response.json({ error: 'Invalid data' }, { status: 400 });
   }
 
   const [encodedEnsDomain, transactionData] = decodeAbiParameters([
@@ -26,7 +26,7 @@ export async function GET(req: Request) {
 
   const username = decodedEnsDomain.match(/^(.*?)\.fname\.eth$/);
   if (username === null) {
-    return Response.json({ error: 'Invalid ENS domain' });
+    return Response.json({ error: 'Invalid ENS domain' }, { status: 400 });
   }
 
   const { functionName, args } = decodeFunctionData({
@@ -35,7 +35,7 @@ export async function GET(req: Request) {
   })  
 
   if (functionName !== 'addr' && args && args.length !== 1) {
-    return Response.json({ error: 'Unsupported function' });
+    return Response.json({ error: 'Unsupported function' }, { status: 400 });
   }
 
   // Fetch the address corresponding to the username
@@ -47,7 +47,7 @@ export async function GET(req: Request) {
   const userData = await fetch(`https://api.neynar.com/v1/farcaster/user-by-username?username=${username}`, options)
 
   if (!userData.ok) {
-    return Response.json({ error: 'Failed to fetch user' });
+    return Response.json({ error: 'Failed to fetch user' }, { status: 400 });
   }
 
   const userDataJson = await userData.json();
