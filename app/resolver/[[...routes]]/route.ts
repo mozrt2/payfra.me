@@ -17,6 +17,8 @@ export async function GET(req: Request, res: Response) {
     return Response.json({ error: 'Invalid data' }, { status: 400 });
   }
 
+  console.log(data);
+
   const [encodedEnsDomain, transactionData] = decodeAbiParameters([
     { name: 'bytes', type: 'bytes' },
     { name: 'bytes2', type: 'bytes' },
