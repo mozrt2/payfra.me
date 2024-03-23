@@ -40,7 +40,7 @@ export async function GET(req: Request, res: Response) {
     data: transactionData,
   })  
 
-  if (functionName !== 'addr' && args && args.length !== 1) {
+  if (functionName !== ('addr' || 'text') && args && args.length !== 1) {
     console.error('Unsupported function:', functionName, args, transactionData);
     return Response.json({ error: 'Unsupported function' }, { status: 400 });
   }
@@ -59,13 +59,37 @@ export async function GET(req: Request, res: Response) {
   
   const userDataJson = await userData.json();
 
-  const address = userDataJson.result.user.verifiedAddresses.eth_addresses[0];
+  let result: `0x${string}` = '0x';
 
-  const result = encodeFunctionResult({
-    abi: resolverAbi.filter(i => i.name === 'addr' && i.inputs.length === 1),
-    functionName,
-    result: address,
-  });
+  if (functionName === 'addr') {
+    const address = userDataJson.result.user.verifiedAddresses.eth_addresses[0];
+    result = encodeFunctionResult({
+      abi: resolverAbi.filter(i => i.name === 'addr' && i.inputs.length === 1),
+      functionName,
+      result: address,
+    });
+  } else if (functionName === 'text' && args) {
+    const key = args[1];
+    let record = '';
+    switch (key) {
+      case 'name':
+        record = userDataJson.result.user.displayName;
+        break;
+      case 'description':
+        record = userDataJson.result.user.profile.description;
+        break;
+      case 'avatar':
+        record = userDataJson.result.user.pfp.url;
+        break;
+      default:
+        return Response.json({ error: 'Record type not supported' }, { status: 400 });
+    }
+    result = encodeFunctionResult({
+      abi: resolverAbi,
+      functionName,
+      result: record,
+    })
+  }
 
   const rawResponse = {
     result,
