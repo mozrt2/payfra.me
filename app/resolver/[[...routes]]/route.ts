@@ -25,23 +25,14 @@ export async function GET(req: Request, res: Response) {
     { name: 'bytes2', type: 'bytes' },
   ], slicedData);
 
-  console.log('encodedEnsDomain:',encodedEnsDomain);
-  console.log('transactionData:',transactionData);
-
   const decodedEnsDomain = decodeEnsDomain(encodedEnsDomain);
-
-  console.log('decodedEnsDomain:',decodedEnsDomain);
 
   const match = decodedEnsDomain.match(`^(?<username>[^.]+)\\.?(?<domain>fname\\.?(?:eth))$`);
   if (match === null) {
     return Response.json({ error: 'Invalid ENS domain' }, { status: 400 });
   }
 
-  console.log('match:',match);
-
   const { username } = match.groups as { domain: string, username: string };
-
-  console.log('username:',username);
 
   const { functionName, args } = decodeFunctionData({
     abi: resolverAbi,
@@ -61,22 +52,17 @@ export async function GET(req: Request, res: Response) {
   const userData = await fetch(`https://api.neynar.com/v1/farcaster/user-by-username?username=${username}`, options)
 
   if (!userData.ok) {
-    console.error(`Failed to fetch user: ${username} // ${userData.status} // ${userData}`);
     return Response.json({ error: 'Failed to fetch user' }, { status: 400 });
   }
   
   const userDataJson = await userData.json();
-  console.log('userDataJson:',userDataJson);
 
   const address = userDataJson.result.user.verifiedAddresses.eth_addresses[0];
-  console.log('address:',address);
 
   const rawResponse = {
     address,
     validUntil: Math.floor(Date.now() / 1000) + 100,
   }
-
-  console.log('rawResponse:',rawResponse);
 
   const hashedResponse = keccak256(encodePacked(
     ['bytes', 'address', 'uint64', 'bytes32', 'bytes32'],
@@ -89,7 +75,6 @@ export async function GET(req: Request, res: Response) {
     ],
   ))
 
-  console.log('hashedResponse:',hashedResponse);
   const hashedResponseBytes = toBytes(hashedResponse);
   
   const account = privateKeyToAccount(process.env.SIGNER_PRIVATE_KEY as `0x${string}`);
@@ -114,6 +99,7 @@ export async function GET(req: Request, res: Response) {
       signature
   ])
 
+  console.log('response:',response);
   return Response.json({
     data: response,
   }, {
