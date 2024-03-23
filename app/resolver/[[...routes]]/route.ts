@@ -69,7 +69,7 @@ export async function GET(req: Request, res: Response) {
 
   const rawResponse = {
     result,
-    validUntil: Math.floor(Date.now() / 1000) + 10000,
+    validUntil: Math.floor(Date.now() / 1000) + 100,
   }
 
   const hashedResponse = keccak256(encodePacked(
