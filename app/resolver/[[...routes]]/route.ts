@@ -17,21 +17,31 @@ export async function GET(req: Request, res: Response) {
     return Response.json({ error: 'Invalid data' }, { status: 400 });
   }
 
-  console.log(data);
-
+  console.log('data:',data);
+  const slicedData = `0x${data.slice(10)}` as `0x${string}`;
+  console.log('slicedData:',slicedData);
   const [encodedEnsDomain, transactionData] = decodeAbiParameters([
     { name: 'bytes', type: 'bytes' },
     { name: 'bytes2', type: 'bytes' },
-  ], `0x${data.slice(10)}`);
+  ], slicedData);
+
+  console.log('encodedEnsDomain:',encodedEnsDomain);
+  console.log('transactionData:',transactionData);
 
   const decodedEnsDomain = decodeEnsDomain(encodedEnsDomain);
+
+  console.log('decodedEnsDomain:',decodedEnsDomain);
 
   const match = decodedEnsDomain.match(`^(?<username>[^.]+)\\.?(?<domain>fname\\.?(?:eth))$`);
   if (match === null) {
     return Response.json({ error: 'Invalid ENS domain' }, { status: 400 });
   }
 
+  console.log('match:',match);
+
   const { username } = match.groups as { domain: string, username: string };
+
+  console.log('username:',username);
 
   const { functionName, args } = decodeFunctionData({
     abi: resolverAbi,
