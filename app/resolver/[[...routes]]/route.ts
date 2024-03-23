@@ -2,6 +2,7 @@ import { decodeEnsDomain } from "@/utils/decodeEnsDomain";
 import { resolverAbi } from "@/utils/resolverAbi";
 import { createWalletClient, decodeAbiParameters, decodeFunctionData, encodeAbiParameters, encodePacked, http, isHex, keccak256, recoverAddress, toBytes } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+import { optimism } from "viem/chains";
 
 export async function GET(req: Request, res: Response) {
   
@@ -81,6 +82,7 @@ export async function GET(req: Request, res: Response) {
   const account = privateKeyToAccount(process.env.SIGNER_PRIVATE_KEY as `0x${string}`);
   const client = createWalletClient({
     account,
+    chain: optimism,
     transport: http(process.env.TRANSPORT_URL as string),
   });
   const signature = await client.signMessage({
