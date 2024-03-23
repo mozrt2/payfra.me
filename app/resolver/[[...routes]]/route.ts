@@ -85,6 +85,8 @@ export async function GET(req: Request, res: Response) {
     chain: optimism,
     transport: http(),
   });
+  const addresses = await client.getAddresses();
+  console.log('addresses:',addresses);
   const signature = await client.signMessage({
     message: {
       raw: hashedResponseBytes,
