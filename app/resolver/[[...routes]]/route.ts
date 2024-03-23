@@ -9,11 +9,13 @@ export async function GET(req: Request, res: Response) {
 
   const resolver = path[4];
   if (resolver !== '0x0eB8b476B2d346537f302E99419b215d191A7EFa') {
+    console.error('Invalid resolver:', resolver);
     return Response.json({ error: 'Invalid resolver' }, { status: 400 });  
   }
 
   const data = path[5].replace('.json', '');
   if (isHex(data) === false) {
+    console.error('Invalid data:', data);
     return Response.json({ error: 'Invalid data' }, { status: 400 });
   }
 
@@ -29,6 +31,7 @@ export async function GET(req: Request, res: Response) {
 
   const match = decodedEnsDomain.match(`^(?<username>[^.]+)\\.?(?<domain>fname\\.?(?:eth))$`);
   if (match === null) {
+    console.error('Invalid ENS domain:', decodedEnsDomain);
     return Response.json({ error: 'Invalid ENS domain' }, { status: 400 });
   }
 
@@ -40,7 +43,8 @@ export async function GET(req: Request, res: Response) {
   })  
 
   if (functionName !== 'addr' && args && args.length !== 1) {
-    return Response.json({ error: `Unsupported function: ${functionName}` }, { status: 400 });
+    console.error('Unsupported function:', functionName);
+    return Response.json({ error: 'Unsupported function' }, { status: 400 });
   }
 
   // Fetch the address corresponding to the username
