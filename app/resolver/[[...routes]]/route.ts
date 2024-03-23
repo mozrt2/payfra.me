@@ -85,7 +85,7 @@ export async function GET(req: Request, res: Response) {
   });
   const signature = await client.signMessage({
     message: {
-      raw: hashedResponseBytes,
+      raw: hashedResponse,
     }
   });
 
