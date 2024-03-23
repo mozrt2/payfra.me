@@ -40,7 +40,7 @@ export async function GET(req: Request, res: Response) {
     data: transactionData,
   })  
 
-  if (functionName !== ('addr' || 'text') && args && args.length !== 1) {
+  if (functionName !== 'addr' && functionName !== 'text' && args && args.length !== 1) {
     console.error('Unsupported function:', functionName, args, transactionData);
     return Response.json({ error: 'Unsupported function' }, { status: 400 });
   }
