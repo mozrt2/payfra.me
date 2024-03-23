@@ -1,8 +1,7 @@
 import { decodeEnsDomain } from "@/utils/decodeEnsDomain";
 import { resolverAbi } from "@/utils/resolverAbi";
-import { createWalletClient, decodeAbiParameters, decodeFunctionData, encodeAbiParameters, encodePacked, http, isHex, keccak256, recoverAddress, toBytes } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { optimism } from "viem/chains";
+import * as secp from '@noble/secp256k1';
+import { decodeAbiParameters, decodeFunctionData, encodeAbiParameters, encodePacked, fromBytes, isHex, keccak256, recoverAddress, toBytes } from "viem";
 
 export async function GET(req: Request, res: Response) {
   
@@ -79,21 +78,32 @@ export async function GET(req: Request, res: Response) {
   const hashedResponseBytes = toBytes(hashedResponse);
   console.log('hashedResponseBytes:',hashedResponseBytes);
   
-  const account = privateKeyToAccount(process.env.SIGNER_PRIVATE_KEY as `0x${string}`);
-  const client = createWalletClient({
-    account,
-    chain: optimism,
-    transport: http(),
-  });
-  const addresses = await client.getAddresses();
-  console.log('addresses:',addresses);
-  const signature = await client.signMessage({
-    message: {
-      raw: hashedResponseBytes,
-    }
-  });
+  const privateKeyBytes = toBytes(process.env.SIGNER_PRIVATE_KEY as `0x${string}`);
 
-  console.log('account:',account)
+  const signatureBytes = await secp.sign(hashedResponseBytes, privateKeyBytes, {
+    der: false,
+    canonical: true,
+    recovered: true,
+  });
+  const recoveryId = 27 + signatureBytes[1];
+  const completeSignature = new Uint8Array([...Array.from(signatureBytes[0]), recoveryId]);
+  const signature = fromBytes(completeSignature, 'hex');
+
+  // const account = privateKeyToAccount(process.env.SIGNER_PRIVATE_KEY as `0x${string}`);
+  // const client = createWalletClient({
+  //   account,
+  //   chain: optimism,
+  //   transport: http(),
+  // });
+  // const addresses = await client.getAddresses();
+  // console.log('addresses:',addresses);
+  // const signature = await client.signMessage({
+  //   message: {
+  //     raw: hashedResponseBytes,
+  //   }
+  // });
+
+  // console.log('account:',account)
   console.log('address:',rawResponse.address)
   console.log('signature:',signature)
   console.log('validUntil:',rawResponse.validUntil)
