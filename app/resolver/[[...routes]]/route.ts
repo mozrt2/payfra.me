@@ -15,13 +15,11 @@ export async function GET(req: Request, res: Response) {
 
   const data = path[5].replace('.json', '');
   if (isHex(data) === false) {
-    console.error('Invalid data:', data);
+    console.error('Invalid data:', data); 
     return Response.json({ error: 'Invalid data' }, { status: 400 });
   }
 
-  console.log('data:',data);
   const slicedData = `0x${data.slice(10)}` as `0x${string}`;
-  console.log('slicedData:',slicedData);
   const [encodedEnsDomain, transactionData] = decodeAbiParameters([
     { name: 'bytes', type: 'bytes' },
     { name: 'bytes2', type: 'bytes' },
@@ -43,7 +41,7 @@ export async function GET(req: Request, res: Response) {
   })  
 
   if (functionName !== 'addr' && args && args.length !== 1) {
-    console.error('Unsupported function:', functionName);
+    console.error('Unsupported function:', functionName, args, transactionData);
     return Response.json({ error: 'Unsupported function' }, { status: 400 });
   }
 
@@ -78,9 +76,7 @@ export async function GET(req: Request, res: Response) {
       keccak256(rawResponse.address),
     ],
   ))
-  console.log('hashedResponse:',hashedResponse);
   const hashedResponseBytes = toBytes(hashedResponse);
-  console.log('hashedResponseBytes:',hashedResponseBytes);
   
   const privateKeyBytes = toBytes(process.env.SIGNER_PRIVATE_KEY as `0x${string}`);
 
@@ -93,31 +89,10 @@ export async function GET(req: Request, res: Response) {
   const completeSignature = new Uint8Array([...Array.from(signatureBytes[0]), recoveryId]);
   const signature = fromBytes(completeSignature, 'hex');
 
-  // const account = privateKeyToAccount(process.env.SIGNER_PRIVATE_KEY as `0x${string}`);
-  // const client = createWalletClient({
-  //   account,
-  //   chain: optimism,
-  //   transport: http(),
-  // });
-  // const addresses = await client.getAddresses();
-  // console.log('addresses:',addresses);
-  // const signature = await client.signMessage({
-  //   message: {
-  //     raw: hashedResponseBytes,
-  //   }
-  // });
-
-  // console.log('account:',account)
-  console.log('address:',rawResponse.address)
-  console.log('signature:',signature)
-  console.log('validUntil:',rawResponse.validUntil)
-
   const verifySignerAddress = await recoverAddress({
     hash: hashedResponseBytes,
     signature,
   });
-
-  console.log('verifySignerAddress:',verifySignerAddress)
 
   const response = encodeAbiParameters([
       { type: 'bytes' },
@@ -130,7 +105,6 @@ export async function GET(req: Request, res: Response) {
       signature
   ])
 
-  console.log('response:',response);
   return Response.json({
     data: response,
   }, {
