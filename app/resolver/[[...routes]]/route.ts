@@ -88,6 +88,10 @@ export async function GET(req: Request, res: Response) {
     }
   });
 
+  console.log('address:',rawResponse.address)
+  console.log('signature:',signature)
+  console.log('validUntil:',rawResponse.validUntil)
+
   const response = encodeAbiParameters([
       { type: 'bytes' },
       { type: 'uint64' },
