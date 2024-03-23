@@ -83,7 +83,7 @@ export async function GET(req: Request, res: Response) {
   const client = createWalletClient({
     account,
     chain: optimism,
-    transport: http(process.env.TRANSPORT_URL as string),
+    transport: http(),
   });
   const signature = await client.signMessage({
     message: {
