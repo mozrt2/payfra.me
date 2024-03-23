@@ -7,13 +7,13 @@ export async function GET(req: Request, res: Response) {
 
   const path = req.url.split('/');
 
-  const resolver = path[2];
+  const resolver = path[4];
   if (resolver !== '0x0eB8b476B2d346537f302E99419b215d191A7EFa') {
     console.error(`Invalid resolver: ${resolver} // ReqURL: ${req.url} // Path0: ${path[0]} // Path1: ${path[1]} // Path2: ${path[2]} // Path3: ${path[3]}`);
     return Response.json({ error: 'Invalid resolver' }, { status: 400 });  
   }
 
-  const data = path[3].replace('.json', '');
+  const data = path[5].replace('.json', '');
   if (isHex(data) === false) {
     console.error('Invalid data');
     return Response.json({ error: 'Invalid data' }, { status: 400 });
