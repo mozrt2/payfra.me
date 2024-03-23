@@ -24,12 +24,12 @@ export async function GET(req: Request, res: Response) {
 
   const decodedEnsDomain = decodeEnsDomain(encodedEnsDomain);
 
-  const match = decodedEnsDomain.match(/^(.*?)\.fname\.eth$/);
+  const match = decodedEnsDomain.match(`^(?<username>[^.]+)\\.?(?<domain>fname\\.?(?:eth))$`);
   if (match === null) {
     return Response.json({ error: 'Invalid ENS domain' }, { status: 400 });
   }
 
-  const { domain, username } = match.groups as { domain: string, username: string };
+  const { username } = match.groups as { domain: string, username: string };
 
   const { functionName, args } = decodeFunctionData({
     abi: resolverAbi,
