@@ -108,16 +108,17 @@ export async function GET(req: Request, res: Response) {
         BigInt(rawResponse.validUntil), 
         signature
     ])
+
+    return Response.json({
+      data: response,
+    }, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
   } catch (error) {
     console.error(error);
   }
 
-  return Response.json({
-    data: response,
-  }, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-    },
-  });
 }
