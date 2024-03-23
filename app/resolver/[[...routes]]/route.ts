@@ -61,7 +61,7 @@ export async function GET(req: Request, res: Response) {
 
   const rawResponse = {
     address,
-    validUntil: Math.floor(Date.now() / 1000) + 100,
+    validUntil: Math.floor(Date.now() / 1000) + 10000,
   }
 
   const hashedResponse = keccak256(encodePacked(
@@ -88,6 +88,7 @@ export async function GET(req: Request, res: Response) {
     }
   });
 
+  console.log('account:',account)
   console.log('address:',rawResponse.address)
   console.log('signature:',signature)
   console.log('validUntil:',rawResponse.validUntil)
