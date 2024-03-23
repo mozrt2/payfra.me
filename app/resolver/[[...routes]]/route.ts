@@ -55,6 +55,7 @@ export async function GET(req: Request, res: Response) {
   const userData = await fetch(`https://api.neynar.com/v1/farcaster/user-by-username?username=${username}`, options)
 
   if (!userData.ok) {
+    console.error('Failed to fetch user:', username, userData.status, userData.statusText, userData.body, userData);
     return Response.json({ error: 'Failed to fetch user' }, { status: 400 });
   }
   
