@@ -60,7 +60,8 @@ const wagmiConfig = createConfig({
 const app = new Frog({
   assetsPath: '/',
   basePath: '/',
-  hub: neynar({ apiKey: process.env.NEYNAR_API_KEY as string})
+  hub: neynar({ apiKey: process.env.NEYNAR_API_KEY as string}),
+  verify: false,
 })
 
 const image = (ens: string, chain: string, amount: string, token: string) => (
