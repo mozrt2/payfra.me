@@ -62,6 +62,9 @@ const app = new Frog({
   basePath: '/',
   hub: neynar({ apiKey: process.env.NEYNAR_API_KEY as string}),
   verify: false,
+  headers: {
+    'Cache-Control': 'max-age=0',
+  }
 })
 
 const image = (ens: string, chain: string, amount: string, token: string, displayBreak: string, displayTo: string) => (
