@@ -163,7 +163,7 @@ app.transaction('api/send/:ens/:token/:isOp/:amount', async c => {
       functionName: 'transfer',
       args: [
         address as `0x${string}`, 
-        parseUnits(finalAmount as string, tokens[isOp ? 'optimism' : 'base'][token].decimals)
+        parseUnits(finalAmount as string, tokens[isOp === "true" ? 'optimism' : 'base'][token].decimals)
       ],
       to: tokens[isOp === "true" ? 'optimism' : 'base'][token].address,
     });
