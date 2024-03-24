@@ -112,25 +112,25 @@ app.frame('/pay/:ens/:chain/:amount/:token', async (c) => {
         <TextInput placeholder='Amount' /> : null,
       ['eth', 'undefined'].includes(token) ?
         <Button.Transaction 
-          target={`/api/send/${address}/ETH/${isOp}/${amount}`}
+          target={`/send/${address}/ETH/${isOp}/${amount}`}
         >
           ETH
         </Button.Transaction> : null,
       ['usdc', 'undefined'].includes(token) ?
         <Button.Transaction 
-          target={`/api/send/${address}/USDC/${isOp}/${amount}`}
+          target={`/send/${address}/USDC/${isOp}/${amount}`}
         >
           USDC
         </Button.Transaction> : null,
       ['dai', 'undefined'].includes(token) ?
         <Button.Transaction 
-          target={`/api/send/${address}/DAI/${isOp}/${amount}`}
+          target={`/send/${address}/DAI/${isOp}/${amount}`}
         > 
           DAI
         </Button.Transaction> : null,
       ['usdt', 'degen', 'undefined'].includes(token) ?
       <Button.Transaction 
-        target={`/api/send/${address}/${isOp ? 'USDT' : 'DEGEN'}/${isOp}/${amount}`}
+        target={`/send/${address}/${isOp ? 'USDT' : 'DEGEN'}/${isOp}/${amount}`}
       >
         {isOp ? 'USDT' : 'DEGEN'}
       </Button.Transaction> : null,
