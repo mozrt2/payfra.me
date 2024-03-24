@@ -105,7 +105,7 @@ app.frame('api/pay/:ens/:chain/:amount/:token', async (c) => {
   console.log('finalEns:', finalEns)
   const displayToken = token === 'undefined' ? '' : token.toUpperCase()+' '
   const displayAmount = amount === 'undefined' ? '' : amount+' '
-  const displayTo = token === 'undefined' && amount === 'undefined' ? ' ' : 'to '
+  const displayTo = token === 'undefined' && amount === 'undefined' ? '' : 'to '
   const displayBreak = amount === 'undefined' ? ' ' : '\n'
   const address = await getEnsAddress(wagmiConfig, { 
     name: finalEns as string,
