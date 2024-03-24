@@ -63,7 +63,7 @@ const app = new Frog({
   hub: neynar({ apiKey: process.env.NEYNAR_API_KEY as string})
 })
 
-const image = (ens: string, chain: string) => (
+const image = (ens: string, chain: string, amount: string, token: string) => (
   <div
     style={{
       alignItems: 'center',
@@ -90,69 +90,73 @@ const image = (ens: string, chain: string) => (
         whiteSpace: 'pre-wrap',
       }}
     >
-      {`Pay ${ens} on ${chain}`}
+      {`Pay ${amount !== "undefined" ? amount+" "+token.toUpperCase()+" to "+ens+"\n" : ens+" "}on ${chain}`}
     </div>
   </div>
 )
 
 // Frame with ENS only
-app.frame('/pay/:ens', async (c) => {
-  const { ens } = c.req.param()
-  const isFkey = ens.includes('fkey')
+app.frame('/pay/:ens/:chain/:amount/:token', async (c) => {
+  const { ens, chain, amount, token } = c.req.param()
   const isFarcasterUser = !ens.includes('.')
   const finalEns = isFarcasterUser ? `${ens}.fname.eth` : ens
-  const lastToken = isFkey ? 'USDT' : 'DEGEN'
-  const chain = isFkey ? 'Optimism 🔴' : 'Base 🔵'
+  const isOp = chain === 'op'
   const address = await getEnsAddress(wagmiConfig, { 
     name: finalEns as string,
   })
   return c.res({
-    image: image(ens as string, chain),
+    image: image(ens as string, isOp ? 'Optimism 🔴' : 'Base 🔵', amount, token),
     intents: [
-      <TextInput placeholder='Amount' />,
+      amount === "undefined" ? 
+        <TextInput placeholder='Amount' /> : null,
+      ['eth', 'undefined'].includes(token) ?
+        <Button.Transaction 
+          target={`/send/${address}/ETH/${isOp}/${amount}`}
+        >
+          ETH
+        </Button.Transaction> : null,
+      ['usdc', 'undefined'].includes(token) ?
+        <Button.Transaction 
+          target={`/send/${address}/USDC/${isOp}/${amount}`}
+        >
+          USDC
+        </Button.Transaction> : null,
+      ['dai', 'undefined'].includes(token) ?
+        <Button.Transaction 
+          target={`/send/${address}/DAI/${isOp}/${amount}`}
+        > 
+          DAI
+        </Button.Transaction> : null,
+      ['usdt', 'degen', 'undefined'].includes(token) ?
       <Button.Transaction 
-        target={`/send/${address}/ETH/${isFkey}`}
+        target={`/send/${address}/${isOp ? 'USDT' : 'DEGEN'}/${isOp}/${amount}`}
       >
-        ETH
-      </Button.Transaction>,
-      <Button.Transaction 
-        target={`/send/${address}/USDC/${isFkey}`}
-      >
-        USDC
-      </Button.Transaction>,
-      <Button.Transaction 
-        target={`/send/${address}/DAI/${isFkey}`}
-      > 
-        DAI
-      </Button.Transaction>,
-      <Button.Transaction 
-        target={`/send/${address}/${lastToken}/${isFkey}`}
-      >
-        {lastToken}
-      </Button.Transaction>,
+        {isOp ? 'USDT' : 'DEGEN'}
+      </Button.Transaction> : null,
     ],
   })
 })
 
-app.transaction('/send/:address/:token/:isFkey', async c => {
+app.transaction('/send/:address/:token/:isOp/:amount', async c => {
   const { inputText } = c
-  const { address, token, isFkey } = c.req.param()
+  const { address, token, isOp, amount } = c.req.param()
+  const finalAmount = amount === 'undefined' ? inputText : amount
   if (token === '0x0000000000000000000000000000000000000000') {
     return c.send({
-      chainId: isFkey ? 'eip155:10' : 'eip155:8453',
+      chainId: isOp ? 'eip155:10' : 'eip155:8453',
       to: address as `0x${string}`,
-      value: parseUnits(inputText as string, 18),
+      value: parseUnits(finalAmount as string, 18),
     });
   } else {
     return c.contract({
       abi: erc20Abi,
-      chainId: isFkey ? 'eip155:10' : 'eip155:8453',
+      chainId: isOp ? 'eip155:10' : 'eip155:8453',
       functionName: 'transfer',
       args: [
         address as `0x${string}`, 
-        parseUnits(inputText as string, tokens[isFkey ? 'optimism' : 'base'][token].decimals)
+        parseUnits(finalAmount as string, tokens[isOp ? 'optimism' : 'base'][token].decimals)
       ],
-      to: tokens[isFkey ? 'optimism' : 'base'][token].address,
+      to: tokens[isOp ? 'optimism' : 'base'][token].address,
     });
   }
 });

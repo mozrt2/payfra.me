@@ -2,12 +2,35 @@ import { getFrameMetadata } from 'frog/next'
 import type { Metadata } from 'next'
 
 export async function generateMetadata({ params }: { params: { routes: string[] } }): Promise<Metadata> {
-  const ens = params.routes[0]
+  const routes = params.routes
+  let ens = 'moritz'
+  let chain = 'base'
+  let amount, token
+  for (const route of routes) {
+    if (route === 'op' || route === 'base') {
+      chain = route
+      continue
+    }
+    if (['eth', 'usdc', 'dai', 'usdt', 'degen'].includes(route)) {
+      token = route
+      continue
+    }
+    if (Number(route)) {
+      amount = route
+      continue
+    }
+    else {
+      if (route.includes('fkey')) {
+        chain = 'op'
+      }
+      ens = route
+    }
+  }
   const domain = process.env.PROD_URL || 'http://localhost:3000'
   console.log('domain:', domain)
   console.log('ens:', ens)
   const frameTags = await getFrameMetadata(
-    `${domain}/api/pay/${ens}`,
+    `${domain}/api/pay/${ens}/${chain}/${amount}/${token}`,
   )
   console.log('frameTags:', frameTags)
   return {
