@@ -109,7 +109,7 @@ app.frame('api/pay/:ens/:chain/:amount/:token', async (c) => {
   const displayToken = token === 'undefined' ? '' : token.toUpperCase()+' '
   const displayAmount = amount === 'undefined' ? '' : amount+' '
   const displayTo = token === 'undefined' && amount === 'undefined' ? '' : 'to '
-  const displayBreak = amount === 'undefined' && ens.length < 12 ? ' ' : '\n'
+  const displayBreak = amount !== 'undefined' || ens.length > 12 ? '\n' : ' '
   return c.res({
     image: image(ens as string, isOp ? 'Optimism 🔴' : 'Base 🔵', displayAmount, displayToken, displayBreak, displayTo),
     action: '/api/finish',
