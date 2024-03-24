@@ -150,7 +150,7 @@ app.transaction('api/send/:ens/:token/:isOp/:amount', async c => {
     name: ens as string,
   })
   const finalAmount = amount === 'undefined' ? inputText : amount
-  if (token === '0x0000000000000000000000000000000000000000') {
+  if (token === 'ETH') {
     return c.send({
       chainId: isOp ? 'eip155:10' : 'eip155:8453',
       to: address as `0x${string}`,
