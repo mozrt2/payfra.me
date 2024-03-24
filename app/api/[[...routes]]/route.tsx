@@ -110,9 +110,6 @@ app.frame('api/pay/:ens/:chain/:amount/:token', async (c) => {
   const displayAmount = amount === 'undefined' ? '' : amount+' '
   const displayTo = token === 'undefined' && amount === 'undefined' ? '' : 'to '
   const displayBreak = amount === 'undefined' ? ' ' : '\n'
-  const address = await getEnsAddress(wagmiConfig, { 
-    name: finalEns as string,
-  })
   return c.res({
     image: image(ens as string, isOp ? 'Optimism 🔴' : 'Base 🔵', displayAmount, displayToken, displayBreak, displayTo),
     intents: [
@@ -120,25 +117,25 @@ app.frame('api/pay/:ens/:chain/:amount/:token', async (c) => {
         <TextInput placeholder='Amount' /> : null,
       ['eth', 'undefined'].includes(token) ?
         <Button.Transaction 
-          target={`/api/send/${address}/ETH/${isOp}/${amount}`}
+          target={`/api/send/${finalEns}/ETH/${isOp}/${amount}`}
         >
           ETH
         </Button.Transaction> : null,
       ['usdc', 'undefined'].includes(token) ?
         <Button.Transaction 
-          target={`/api/send/${address}/USDC/${isOp}/${amount}`}
+          target={`/api/send/${finalEns}/USDC/${isOp}/${amount}`}
         >
           USDC
         </Button.Transaction> : null,
       ['dai', 'undefined'].includes(token) ?
         <Button.Transaction 
-          target={`/api/send/${address}/DAI/${isOp}/${amount}`}
+          target={`/api/send/${finalEns}/DAI/${isOp}/${amount}`}
         > 
           DAI
         </Button.Transaction> : null,
       ['usdt', 'degen', 'undefined'].includes(token) ?
       <Button.Transaction 
-        target={`/api/send/${address}/${isOp ? 'USDT' : 'DEGEN'}/${isOp}/${amount}`}
+        target={`/api/send/${finalEns}/${isOp ? 'USDT' : 'DEGEN'}/${isOp}/${amount}`}
       >
         {isOp ? 'USDT' : 'DEGEN'}
       </Button.Transaction> : null,
@@ -146,9 +143,12 @@ app.frame('api/pay/:ens/:chain/:amount/:token', async (c) => {
   })
 })
 
-app.transaction('api/send/:address/:token/:isOp/:amount', async c => {
+app.transaction('api/send/:ens/:token/:isOp/:amount', async c => {
   const { inputText } = c
-  const { address, token, isOp, amount } = c.req.param()
+  const { ens, token, isOp, amount } = c.req.param()
+  const address = await getEnsAddress(wagmiConfig, { 
+    name: ens as string,
+  })
   const finalAmount = amount === 'undefined' ? inputText : amount
   if (token === '0x0000000000000000000000000000000000000000') {
     return c.send({
