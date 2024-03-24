@@ -97,17 +97,19 @@ const image = (ens: string, chain: string) => (
 app.frame('/pay/:ens', async (c) => {
   const { ens } = c.req.param()
   const isFkey = ens.includes('fkey')
+  const isFarcasterUser = !ens.includes('.')
+  const finalEns = isFarcasterUser ? `${ens}.fname.eth` : ens
   const lastToken = isFkey ? 'USDT' : 'DEGEN'
   const chain = isFkey ? 'Optimism 🔴' : 'Base 🔵'
   const address = await getEnsAddress(wagmiConfig, { 
-    name: ens as string,
+    name: finalEns as string,
   })
   return c.res({
     image: image(ens as string, chain),
     intents: [
       <TextInput placeholder='Amount' />,
       <Button.Transaction 
-        target={`/send/${ens}/${address}/ETH/${isFkey}`}
+        target={`/send/${address}/ETH/${isFkey}`}
       >
         ETH
       </Button.Transaction>,
