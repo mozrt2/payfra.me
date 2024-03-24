@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: { routes: string[] 
       continue
     }
     if (['eth', 'usdc', 'dai', 'usdt', 'degen'].includes(route.toLowerCase())) {
-      token = route
+      token = route.toLowerCase()
       continue
     }
     if (Number(route)) {
