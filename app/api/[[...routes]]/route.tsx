@@ -105,7 +105,6 @@ app.frame('api/pay/:ens/:chain/:amount/:token', async (c) => {
   const isFarcasterUser = !ens.includes('.')
   const finalEns = isFarcasterUser ? `${ens}.fname.eth` : ens
   const isOp = chain === 'op'
-  console.log('finalEns:', finalEns)
   const displayToken = token === 'undefined' ? '' : token.toUpperCase()+' '
   const displayAmount = amount === 'undefined' ? '' : amount+' '
   const displayTo = token === 'undefined' && amount === 'undefined' ? '' : 'to '

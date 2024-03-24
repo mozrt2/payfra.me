@@ -27,12 +27,9 @@ export async function generateMetadata({ params }: { params: { routes: string[] 
     }
   }
   const domain = process.env.PROD_URL || 'http://localhost:3000'
-  console.log('domain:', domain)
-  console.log('ens:', ens)
   const frameTags = await getFrameMetadata(
     `${domain}/api/pay/${ens}/${chain}/${amount}/${token}`,
   )
-  console.log('frameTags:', frameTags)
   return {
     other: frameTags,
   }

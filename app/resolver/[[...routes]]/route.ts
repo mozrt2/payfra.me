@@ -69,7 +69,6 @@ export async function GET(req: Request, res: Response) {
       result: address,
     });
   } else if (functionName === 'text' && args) {
-    console.log('args:', args);
     const key = args[1];
     let record = '';
     switch (key) {
@@ -88,7 +87,6 @@ export async function GET(req: Request, res: Response) {
       default:
         return Response.json({ error: 'Record type not supported' }, { status: 400 });
     }
-    console.log('record:', record);
     result = encodeFunctionResult({
       abi: resolverAbi,
       functionName,
