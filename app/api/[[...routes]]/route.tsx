@@ -112,6 +112,7 @@ app.frame('api/pay/:ens/:chain/:amount/:token', async (c) => {
   const displayBreak = amount === 'undefined' ? ' ' : '\n'
   return c.res({
     image: image(ens as string, isOp ? 'Optimism 🔴' : 'Base 🔵', displayAmount, displayToken, displayBreak, displayTo),
+    action: '/api/finish',
     intents: [
       amount === "undefined" ? 
         <TextInput placeholder='Amount' /> : null,
@@ -169,6 +170,43 @@ app.transaction('api/send/:ens/:token/:isOp/:amount', async c => {
     });
   }
 });
+
+app.frame('api/finish', (c) => {
+  const { transactionId } = c
+  return c.res({
+    image: (
+      <div
+    style={{
+      alignItems: 'center',
+      background:'linear-gradient(to bottom right, #0F445C, #002E00)',
+      backgroundSize: '100% 100%',
+      display: 'flex',
+      flexDirection: 'column',
+      flexWrap: 'nowrap',
+      height: '100%',
+      justifyContent: 'center',
+      textAlign: 'center',
+      width: '100%',
+    }}
+  >
+    <div
+      style={{
+        color: 'white',
+        fontSize: 60,
+        fontStyle: 'normal',
+        letterSpacing: '-0.025em',
+        lineHeight: 1.4,
+        marginTop: 30,
+        padding: '0 120px',
+        whiteSpace: 'pre-wrap',
+      }}
+    >
+        Transaction hash: {transactionId}
+    </div>
+  </div>
+    )
+  })
+})
 
 export const GET = handle(app)
 export const POST = handle(app)
