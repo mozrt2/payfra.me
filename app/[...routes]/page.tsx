@@ -3,9 +3,13 @@ import type { Metadata } from 'next'
 
 export async function generateMetadata({ params }: { params: { routes: string[] } }): Promise<Metadata> {
   const ens = params.routes[0]
+  const domain = process.env.VERCEL_URL || 'http://localhost:3000'
+  console.log('domain:', domain)
+  console.log('ens:', ens)
   const frameTags = await getFrameMetadata(
-    `${process.env.VERCEL_URL || 'http://localhost:3000'}/api/pay/${ens}`,
+    `${domain}/api/pay/${ens}`,
   )
+  console.log('frameTags:', frameTags)
   return {
     other: frameTags,
   }

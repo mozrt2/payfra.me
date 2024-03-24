@@ -3,6 +3,7 @@
 import { createConfig, getEnsAddress, http } from '@wagmi/core';
 import { mainnet } from '@wagmi/core/chains';
 import { Button, Frog, TextInput } from 'frog';
+import { neynar } from 'frog/hubs';
 import { handle } from 'frog/next';
 import { erc20Abi, parseUnits } from 'viem';
 interface Token {
@@ -59,6 +60,7 @@ const wagmiConfig = createConfig({
 const app = new Frog({
   assetsPath: '/',
   basePath: '/api',
+  hub: neynar({ apiKey: process.env.NEYNAR_API_KEY as string})
 })
 
 const image = (ens: string, chain: string) => (
