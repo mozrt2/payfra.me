@@ -64,7 +64,7 @@ const app = new Frog({
   verify: false,
 })
 
-const image = (ens: string, chain: string, amount: string, token: string) => (
+const image = (ens: string, chain: string, amount: string, token: string, displayBreak: string, displayTo: string) => (
   <div
     style={{
       alignItems: 'center',
@@ -91,7 +91,7 @@ const image = (ens: string, chain: string, amount: string, token: string) => (
         whiteSpace: 'pre-wrap',
       }}
     >
-      {`Pay ${amount !== "undefined" ? amount+" "+token.toUpperCase()+" to "+ens+"\n" : ens+" "}on ${chain}`}
+      {`Pay ${amount}${token}${displayTo}${ens}${displayBreak}on ${chain}`}
     </div>
   </div>
 )
@@ -103,11 +103,15 @@ app.frame('api/pay/:ens/:chain/:amount/:token', async (c) => {
   const finalEns = isFarcasterUser ? `${ens}.fname.eth` : ens
   const isOp = chain === 'op'
   console.log('finalEns:', finalEns)
+  const displayToken = token === 'undefined' ? '' : token.toUpperCase()+' '
+  const displayAmount = amount === 'undefined' ? '' : amount+' '
+  const displayTo = token === 'undefined' && amount === 'undefined' ? ' ' : 'to '
+  const displayBreak = amount === 'undefined' ? ' ' : '\n'
   const address = await getEnsAddress(wagmiConfig, { 
     name: finalEns as string,
   })
   return c.res({
-    image: image(ens as string, isOp ? 'Optimism 🔴' : 'Base 🔵', amount, token),
+    image: image(ens as string, isOp ? 'Optimism 🔴' : 'Base 🔵', displayAmount, displayToken, displayBreak, displayTo),
     intents: [
       amount === "undefined" ? 
         <TextInput placeholder='Amount' /> : null,
