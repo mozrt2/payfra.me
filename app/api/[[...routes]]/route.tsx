@@ -152,20 +152,20 @@ app.transaction('api/send/:ens/:token/:isOp/:amount', async c => {
   const finalAmount = amount === 'undefined' ? inputText : amount
   if (token === 'ETH') {
     return c.send({
-      chainId: isOp ? 'eip155:10' : 'eip155:8453',
+      chainId: isOp === "true" ? 'eip155:10' : 'eip155:8453',
       to: address as `0x${string}`,
       value: parseUnits(finalAmount as string, 18),
     });
   } else {
     return c.contract({
       abi: erc20Abi,
-      chainId: isOp ? 'eip155:10' : 'eip155:8453',
+      chainId: isOp === "true" ? 'eip155:10' : 'eip155:8453',
       functionName: 'transfer',
       args: [
         address as `0x${string}`, 
         parseUnits(finalAmount as string, tokens[isOp ? 'optimism' : 'base'][token].decimals)
       ],
-      to: tokens[isOp ? 'optimism' : 'base'][token].address,
+      to: tokens[isOp === "true" ? 'optimism' : 'base'][token].address,
     });
   }
 });
