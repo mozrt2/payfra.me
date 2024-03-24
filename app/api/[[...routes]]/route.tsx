@@ -59,7 +59,7 @@ const wagmiConfig = createConfig({
 
 const app = new Frog({
   assetsPath: '/',
-  basePath: '/api',
+  basePath: '/',
   hub: neynar({ apiKey: process.env.NEYNAR_API_KEY as string})
 })
 
@@ -96,7 +96,7 @@ const image = (ens: string, chain: string, amount: string, token: string) => (
 )
 
 // Frame with ENS only
-app.frame('/pay/:ens/:chain/:amount/:token', async (c) => {
+app.frame('api/pay/:ens/:chain/:amount/:token', async (c) => {
   const { ens, chain, amount, token } = c.req.param()
   const isFarcasterUser = !ens.includes('.')
   const finalEns = isFarcasterUser ? `${ens}.fname.eth` : ens
@@ -137,7 +137,7 @@ app.frame('/pay/:ens/:chain/:amount/:token', async (c) => {
   })
 })
 
-app.transaction('/send/:address/:token/:isOp/:amount', async c => {
+app.transaction('api/send/:address/:token/:isOp/:amount', async c => {
   const { inputText } = c
   const { address, token, isOp, amount } = c.req.param()
   const finalAmount = amount === 'undefined' ? inputText : amount
