@@ -101,6 +101,7 @@ app.frame('api/pay/:ens/:chain/:amount/:token', async (c) => {
   const isFarcasterUser = !ens.includes('.')
   const finalEns = isFarcasterUser ? `${ens}.fname.eth` : ens
   const isOp = chain === 'op'
+  console.log('finalEns:', finalEns)
   const address = await getEnsAddress(wagmiConfig, { 
     name: finalEns as string,
   })
