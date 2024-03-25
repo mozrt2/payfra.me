@@ -63,7 +63,7 @@ const app = new Frog({
   hub: neynar({ apiKey: process.env.NEYNAR_API_KEY as string}),
   verify: false,
   headers: {
-    'Cache-Control': 'max-age=0',
+    'Cache-Control': 'max-age=3600',
   }
 })
 
