@@ -8,7 +8,9 @@ export async function generateMetadata({ params }: { params: { routes: string[] 
   let amount, token
   for (const route of routes) {
     if (route === 'op' || route === 'base') {
-      chain = route
+      if (!route.includes('fkey')) {
+        chain = route
+      }
       continue
     }
     if (['eth', 'usdc', 'dai', 'usdt', 'degen'].includes(route.toLowerCase())) {
